@@ -2,15 +2,49 @@ import {
   DesignState,
   FlyComponent,
 } from '../design/types';
+import {
+  DesignOperation,
+  applyOperationToSnapshot,
+} from '../operations/DesignOperation';
+import {
+  RuleEvaluator,
+  RuleViolation,
+} from '../rules/RuleEvaluator';
+import { RevisionGraph } from './RevisionGraph';
 
 export type DesignListener = (state: DesignState) => void;
+
+export class RuleValidationError extends Error {
+  public readonly violations: RuleViolation[];
+
+  constructor(violations: RuleViolation[]) {
+    super(
+      `Design operation failed rule validation: ${violations
+        .map((violation) => violation.message)
+        .join('; ')}`,
+    );
+
+    this.name = 'RuleValidationError';
+    this.violations = structuredClone(violations);
+  }
+}
 
 export class DesignStore {
   private state: DesignState;
   private readonly listeners = new Set<DesignListener>();
+  private readonly revisionGraph: RevisionGraph;
 
   constructor(initialState: DesignState) {
-    this.state = cloneState(initialState);
+    const initialSnapshot = cloneState(initialState);
+
+    const evaluation = RuleEvaluator.evaluateSnapshot(initialSnapshot);
+
+    if (!evaluation.isValid) {
+      throw new RuleValidationError(evaluation.violations);
+    }
+
+    this.state = initialSnapshot;
+    this.revisionGraph = new RevisionGraph(initialSnapshot);
   }
 
   public getState(): DesignState {
@@ -25,55 +59,68 @@ export class DesignStore {
     };
   }
 
-  public addComponent(component: FlyComponent): DesignState {
-    const nextState = cloneState(this.state);
+  public applyOperation(operation: DesignOperation): DesignState {
+    const currentSnapshot = this.getState();
 
-    nextState.components.push(cloneComponent(component));
-    nextState.revisionId = createRevisionId();
+    const candidateSnapshot = this.applyOperationToSnapshot(
+      currentSnapshot,
+      operation,
+    );
 
-    this.state = nextState;
+    const evaluation = RuleEvaluator.evaluateSnapshot(candidateSnapshot);
+
+    if (!evaluation.isValid) {
+      throw new RuleValidationError(evaluation.violations);
+    }
+
+    const parentRevisionId = this.state.revisionId;
+
+    candidateSnapshot.revisionId = createRevisionId();
+
+    this.revisionGraph.addRevision(
+      candidateSnapshot,
+      parentRevisionId,
+    );
+
+    this.state = candidateSnapshot;
+
     this.notify();
 
     return this.getState();
   }
 
-  public removeComponent(componentId: string): DesignState {
-    const nextState = cloneState(this.state);
-
-    nextState.components = nextState.components.filter(
-      (component) => component.id !== componentId,
+  public applyOperationToSnapshot(
+    operation: DesignOperation,
+  ): DesignState {
+    return applyOperationToSnapshot(
+      this.getState(),
+      operation,
     );
+  }
 
-    nextState.revisionId = createRevisionId();
+  public addComponent(component: FlyComponent): DesignState {
+    return this.applyOperation({
+      type: 'ADD_COMPONENT',
+      component,
+    });
+  }
 
-    this.state = nextState;
-    this.notify();
-
-    return this.getState();
+  public removeComponent(componentId: string): DesignState {
+    return this.applyOperation({
+      type: 'REMOVE_COMPONENT',
+      componentId,
+    });
   }
 
   public updateComponent(
     componentId: string,
     updates: Partial<FlyComponent>,
   ): DesignState {
-    const nextState = cloneState(this.state);
-
-    const component = nextState.components.find(
-      (candidate) => candidate.id === componentId,
-    );
-
-    if (!component) {
-      throw new Error(`Component '${componentId}' was not found.`);
-    }
-
-    Object.assign(component, cloneComponent(updates as FlyComponent));
-
-    nextState.revisionId = createRevisionId();
-
-    this.state = nextState;
-    this.notify();
-
-    return this.getState();
+    return this.applyOperation({
+      type: 'UPDATE_COMPONENT',
+      componentId,
+      updates,
+    });
   }
 
   public replaceState(nextState: DesignState): DesignState {
@@ -83,12 +130,33 @@ export class DesignStore {
       );
     }
 
-    this.state = cloneState(nextState);
-    this.state.revisionId = createRevisionId();
+    const candidateSnapshot = cloneState(nextState);
+
+    const evaluation =
+      RuleEvaluator.evaluateSnapshot(candidateSnapshot);
+
+    if (!evaluation.isValid) {
+      throw new RuleValidationError(evaluation.violations);
+    }
+
+    const parentRevisionId = this.state.revisionId;
+
+    candidateSnapshot.revisionId = createRevisionId();
+
+    this.revisionGraph.addRevision(
+      candidateSnapshot,
+      parentRevisionId,
+    );
+
+    this.state = candidateSnapshot;
 
     this.notify();
 
     return this.getState();
+  }
+
+  public getRevisionGraph(): RevisionGraph {
+    return this.revisionGraph;
   }
 
   private notify(): void {
@@ -108,8 +176,4 @@ function createRevisionId(): string {
 
 function cloneState(state: DesignState): DesignState {
   return structuredClone(state);
-}
-
-function cloneComponent(component: FlyComponent): FlyComponent {
-  return structuredClone(component);
 }
