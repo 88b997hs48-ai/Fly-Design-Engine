@@ -270,11 +270,12 @@ it('does not mutate the design when an invalid proposal fails', () => {
 
   expect(
     store.getRevisionGraph().getRevisionCount(),
-  ).toBe(beforeRevisionCount);
-
-  expect(
+  ).toBe(
+      expect(
     manager.getProposal(proposal.id)?.status,
   ).toBe('PENDING');
+});
+
 it('does not allow an accepted proposal to be accepted again', () => {
   const manager = new ProposalManager();
 
