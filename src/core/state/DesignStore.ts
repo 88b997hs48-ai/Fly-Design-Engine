@@ -62,10 +62,7 @@ export class DesignStore {
   public applyOperation(operation: DesignOperation): DesignState {
     const currentSnapshot = this.getState();
 
-    const candidateSnapshot = this.applyOperationToSnapshot(
-      currentSnapshot,
-      operation,
-    );
+    const candidateSnapshot = applyOperationToSnapshot(currentSnapshot, operation);
 
     const evaluation = RuleEvaluator.evaluateSnapshot(candidateSnapshot);
 
