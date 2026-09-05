@@ -37,7 +37,7 @@ export class ProposalManager {
     return this.proposals.size;
   }
 
-  public rejectProposal(id: string): DesignProposal {
+    public rejectProposal(id: string): DesignProposal {
     const proposal = this.proposals.get(id);
 
     if (!proposal) {
@@ -52,8 +52,10 @@ export class ProposalManager {
 
     proposal.status = 'REJECTED';
 
-    return structuredClone(proposal)
-      public acceptProposal(
+    return structuredClone(proposal);
+  }
+
+  public acceptProposal(
     id: string,
     store: DesignStore,
   ): DesignProposal {
@@ -83,8 +85,6 @@ export class ProposalManager {
     proposal.status = 'ACCEPTED';
 
     return structuredClone(proposal);
-  }
-      ;
   }
 }
 
