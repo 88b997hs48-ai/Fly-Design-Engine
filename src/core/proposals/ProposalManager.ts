@@ -1,5 +1,9 @@
 import { DesignProposal, ProposalSource } from './DesignProposal';
-import { DesignOperation } from '../operations/DesignOperation';
+import {
+  DesignOperation,
+  applyOperationToSnapshot,
+} from '../operations/DesignOperation';
+import { DesignStore } from '../state/DesignStore';
 
 export class ProposalManager {
   private readonly proposals = new Map<string, DesignProposal>();
@@ -48,7 +52,39 @@ export class ProposalManager {
 
     proposal.status = 'REJECTED';
 
+    return structuredClone(proposal)
+      public acceptProposal(
+    id: string,
+    store: DesignStore,
+  ): DesignProposal {
+    const proposal = this.proposals.get(id);
+
+    if (!proposal) {
+      throw new Error(`Proposal '${id}' was not found.`);
+    }
+
+    if (proposal.status !== 'PENDING') {
+      throw new Error(
+        `Proposal '${id}' is already ${proposal.status.toLowerCase()}.`,
+      );
+    }
+
+    let candidateState = store.getState();
+
+    for (const operation of proposal.operations) {
+      candidateState = applyOperationToSnapshot(
+        candidateState,
+        operation,
+      );
+    }
+
+    store.replaceState(candidateState);
+
+    proposal.status = 'ACCEPTED';
+
     return structuredClone(proposal);
+  }
+      ;
   }
 }
 
