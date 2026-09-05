@@ -216,5 +216,24 @@ it('does not allow retrieved revision history to mutate stored revisions', () =>
 
   expect(storedRevision?.snapshot.components[0].id).toBe('hook');
 });
-  
+ it('links a successful revision to its parent revision', () => {
+  const store = new DesignStore(createValidState());
+
+  const graph = store.getRevisionGraph();
+  const beforeRevisionId = store.getState().revisionId;
+
+  store.addComponent({
+    id: 'body-parent-test',
+    function: 'BODY',
+    position: 'CENTER',
+  });
+
+  const afterRevisionId = store.getState().revisionId;
+
+  expect(afterRevisionId).not.toBe(beforeRevisionId);
+
+  const newRevision = graph.getRevision(afterRevisionId);
+
+  expect(newRevision?.parentRevisionId).toBe(beforeRevisionId);
+}); 
    });
