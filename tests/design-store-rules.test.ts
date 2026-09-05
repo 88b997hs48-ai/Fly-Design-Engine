@@ -158,4 +158,15 @@ describe('DesignStore — rule authority and mutation isolation', () => {
     ).toThrow();
     expect(store.getState()).toEqual(before);
   });
-});
+it('rejects removing a component that does not exist', () => {
+  const store = new DesignStore(createValidState());
+
+  const before = store.getState();
+
+  expect(() =>
+    store.removeComponent('does-not-exist'),
+  ).toThrow("Component 'does-not-exist' was not found.");
+
+  expect(store.getState()).toEqual(before);
+})
+  ;});
