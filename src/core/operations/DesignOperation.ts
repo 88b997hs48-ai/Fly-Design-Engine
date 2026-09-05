@@ -28,11 +28,22 @@ export function applyOperationToSnapshot(
     }
 
     case 'REMOVE_COMPONENT': {
-      nextState.components = nextState.components.filter(
-        (component) => component.id !== operation.componentId,
-      );
-      return nextState;
-    }
+  const componentExists = nextState.components.some(
+    (component) => component.id === operation.componentId,
+  );
+
+  if (!componentExists) {
+    throw new Error(
+      `Component '${operation.componentId}' was not found.`,
+    );
+  }
+
+  nextState.components = nextState.components.filter(
+    (component) => component.id !== operation.componentId,
+  );
+
+  return nextState;
+}
 
     case 'UPDATE_COMPONENT': {
       const component = nextState.components.find(
