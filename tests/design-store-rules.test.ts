@@ -168,7 +168,9 @@ it('rejects removing a component that does not exist', () => {
   ).toThrow("Component 'does-not-exist' was not found.");
 
   expect(store.getState()).toEqual(before);
-})it('creates exactly one new revision after a successful operation', () => {
+});
+
+it('creates exactly one new revision after a successful operation', () => {
   const store = new DesignStore(createValidState());
 
   const graph = store.getRevisionGraph();
@@ -215,4 +217,4 @@ it('does not allow retrieved revision history to mutate stored revisions', () =>
   expect(storedRevision?.snapshot.components[0].id).toBe('hook-1');
 });
   
-   ;});
+   });
