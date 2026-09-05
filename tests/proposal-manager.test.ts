@@ -267,9 +267,13 @@ it('does not mutate the design when an invalid proposal fails', () => {
 
   expect(store.getState()).toEqual(beforeState);
 
-  expect(
+    expect(
     store.getRevisionGraph().getRevisionCount(),
-  ).toBe(
+  ).toBe(beforeRevisionCount);
+
+  expect(
+    manager.getProposal(proposal.id)?.status,
+  ).toBe('PENDING');
       expect(
     manager.getProposal(proposal.id)?.status,
   ).toBe('PENDING');
