@@ -1,6 +1,7 @@
 import { DesignState } from '../design/types';
 import {
   MechanicalEffect,
+  MechanicalProperty,
 } from '../rules/DesignRule';
 import {
   MechanicalRuleEvaluator,
@@ -13,7 +14,7 @@ export type MechanicalDirection =
   | 'INCREASE';
 
 export interface MechanicalPrediction {
-  mechanic: string;
+  property: MechanicalProperty;
   score: number;
   direction: MechanicalDirection;
   contributingRules: string[];
@@ -31,8 +32,10 @@ export class MechanicalPredictionEngine {
     const evaluation =
       MechanicalRuleEvaluator.evaluate(state);
 
-    const scores = new Map<string, number>();
-    const contributors = new Map<string, Set<string>>();
+    const scores = new Map<MechanicalProperty, number>();
+
+    const contributors =
+      new Map<MechanicalProperty, Set<string>>();
 
     for (const appliedRule of evaluation.appliedRules) {
       for (const effect of appliedRule.effects) {
@@ -45,20 +48,19 @@ export class MechanicalPredictionEngine {
       }
     }
 
-    const predictions: MechanicalPrediction[] = Array.from(
-      scores.entries(),
-    )
-      .map(([mechanic, score]) => ({
-        mechanic,
-        score,
-        direction: this.directionFromScore(score),
-        contributingRules: Array.from(
-          contributors.get(mechanic) ?? [],
-        ),
-      }))
-      .sort((a, b) =>
-        a.mechanic.localeCompare(b.mechanic),
-      );
+    const predictions: MechanicalPrediction[] =
+      Array.from(scores.entries())
+        .map(([property, score]) => ({
+          property,
+          score,
+          direction: this.directionFromScore(score),
+          contributingRules: Array.from(
+            contributors.get(property) ?? [],
+          ),
+        }))
+        .sort((a, b) =>
+          a.property.localeCompare(b.property),
+        );
 
     return {
       predictions,
@@ -69,27 +71,51 @@ export class MechanicalPredictionEngine {
   private static applyEffect(
     effect: MechanicalEffect,
     ruleId: string,
-    scores: Map<string, number>,
-    contributors: Map<string, Set<string>>,
+    scores: Map<MechanicalProperty, number>,
+    contributors: Map<MechanicalProperty, Set<string>>,
   ): void {
     const currentScore =
-      scores.get(effect.mechanic) ?? 0;
+      scores.get(effect.property) ?? 0;
+
+    const effectScore =
+      this.scoreEffect(effect);
 
     scores.set(
-      effect.mechanic,
-      currentScore + effect.magnitude,
+      effect.property,
+      currentScore + effectScore,
     );
 
-    const mechanicContributors =
-      contributors.get(effect.mechanic) ??
+    const propertyContributors =
+      contributors.get(effect.property) ??
       new Set<string>();
 
-    mechanicContributors.add(ruleId);
+    propertyContributors.add(ruleId);
 
     contributors.set(
-      effect.mechanic,
-      mechanicContributors,
+      effect.property,
+      propertyContributors,
     );
+  }
+
+  private static scoreEffect(
+    effect: MechanicalEffect,
+  ): number {
+    const confidenceWeight = {
+      LOW: 1,
+      MODERATE: 2,
+      HIGH: 3,
+    }[effect.confidence];
+
+    switch (effect.direction) {
+      case 'INCREASE':
+        return confidenceWeight;
+
+      case 'DECREASE':
+        return -confidenceWeight;
+
+      case 'MAINTAIN':
+        return 0;
+    }
   }
 
   private static directionFromScore(
