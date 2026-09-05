@@ -275,4 +275,79 @@ it('does not mutate the design when an invalid proposal fails', () => {
   expect(
     manager.getProposal(proposal.id)?.status,
   ).toBe('PENDING');
+it('does not allow an accepted proposal to be accepted again', () => {
+  const manager = new ProposalManager();
+
+  const initialState: DesignState = {
+    designId: 'design-1',
+    revisionId: 'revision-1',
+    intent: {
+      species: 'brown trout',
+      forage: 'baitfish',
+      goals: [],
+    },
+    architecture: 'STREAMER',
+    desiredMechanics: {
+      movement: 'MODERATE',
+      sinkRate: 'MODERATE',
+      buoyancy: 'LOW',
+      profile: 'MODERATE',
+      drag: 'MODERATE',
+      waterDisplacement: 'MODERATE',
+      stability: 'MODERATE',
+      translucency: 'MODERATE',
+      flash: 'MODERATE',
+      flexibility: 'MODERATE',
+      durability: 'MODERATE',
+    },
+    predictedMechanics: {
+      movement: 'MODERATE',
+      sinkRate: 'MODERATE',
+      buoyancy: 'LOW',
+      profile: 'MODERATE',
+      drag: 'MODERATE',
+      waterDisplacement: 'MODERATE',
+      stability: 'MODERATE',
+      translucency: 'MODERATE',
+      flash: 'MODERATE',
+      flexibility: 'MODERATE',
+      durability: 'MODERATE',
+    },
+    components: [
+      {
+        id: 'hook',
+        function: 'HOOK',
+        position: 'CENTER',
+      },
+      {
+        id: 'head',
+        function: 'HEAD',
+        position: 'FRONT',
+      },
+    ],
+  };
+
+  const store = new DesignStore(initialState);
+
+  const proposal = manager.createProposal(
+    'AI',
+    'Add a body component.',
+    [
+      {
+        type: 'ADD_COMPONENT',
+        component: {
+          id: 'body-once',
+          function: 'BODY',
+          position: 'CENTER',
+        },
+      },
+    ],
+  );
+
+  manager.acceptProposal(proposal.id, store);
+
+  expect(() =>
+    manager.acceptProposal(proposal.id, store),
+  ).toThrow(`Proposal '${proposal.id}' is already accepted.`);
+});
 });
