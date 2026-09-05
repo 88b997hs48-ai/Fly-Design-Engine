@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ProposalManager } from '../src/core/proposals/ProposalManager';
 import { DesignStore } from '../src/core/state/DesignStore';
+import { DesignState } from '../src/core/design/types';
 describe('ProposalManager', () => {
   it('creates and retrieves a pending proposal', () => {
     const manager = new ProposalManager();
@@ -107,7 +108,7 @@ describe('ProposalManager', () => {
 it('accepts a proposal and applies its operation to the design store', () => {
   const manager = new ProposalManager();
 
-  const initialState = {
+  const initialState: DesignState = {
     designId: 'design-1',
     revisionId: 'revision-1',
     intent: {
@@ -154,7 +155,7 @@ it('accepts a proposal and applies its operation to the design store', () => {
         position: 'FRONT',
       },
     ],
-  } as const;
+  };
 
   const store = new DesignStore(initialState);
 
@@ -196,7 +197,7 @@ it('accepts a proposal and applies its operation to the design store', () => {
 it('does not mutate the design when an invalid proposal fails', () => {
   const manager = new ProposalManager();
 
-  const initialState = {
+  const initialState: DesignState = {
     designId: 'design-1',
     revisionId: 'revision-1',
     intent: {
@@ -243,7 +244,7 @@ it('does not mutate the design when an invalid proposal fails', () => {
         position: 'FRONT',
       },
     ],
-  } as const;
+  };
 
   const store = new DesignStore(initialState);
   const beforeState = store.getState();
