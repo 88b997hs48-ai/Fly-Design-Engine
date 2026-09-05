@@ -103,7 +103,6 @@ describe('ProposalManager', () => {
       manager.rejectProposal(proposal.id),
     ).toThrow(`Proposal '${proposal.id}' is already rejected.`);
   });
-});
 
 it('accepts a proposal and applies its operation to the design store', () => {
   const manager = new ProposalManager();
@@ -271,7 +270,7 @@ it('does not mutate the design when an invalid proposal fails', () => {
   expect(
     store.getRevisionGraph().getRevisionCount(),
   ).toBe(
-        expect(
+      expect(
     manager.getProposal(proposal.id)?.status,
   ).toBe('PENDING');
 });
