@@ -354,3 +354,4 @@ it('does not allow an accepted proposal to be accepted again', () => {
     manager.acceptProposal(proposal.id, store),
   ).toThrow(`Proposal '${proposal.id}' is already accepted.`);
 });
+  });
