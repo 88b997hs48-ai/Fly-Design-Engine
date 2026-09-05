@@ -214,7 +214,7 @@ it('does not allow retrieved revision history to mutate stored revisions', () =>
 
   const storedRevision = graph.getRevision(originalRevisionId);
 
-  expect(storedRevision?.snapshot.components[0].id).toBe('hook-1');
+  expect(storedRevision?.snapshot.components[0].id).toBe('hook');
 });
   
    });
