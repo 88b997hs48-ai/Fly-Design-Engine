@@ -168,5 +168,51 @@ it('rejects removing a component that does not exist', () => {
   ).toThrow("Component 'does-not-exist' was not found.");
 
   expect(store.getState()).toEqual(before);
-})
-  ;});
+})it('creates exactly one new revision after a successful operation', () => {
+  const store = new DesignStore(createValidState());
+
+  const graph = store.getRevisionGraph();
+  const beforeCount = graph.getRevisionCount();
+
+  store.addComponent({
+    id: 'body-1',
+    function: 'BODY',
+    position: 'CENTER',
+  });
+
+  expect(graph.getRevisionCount()).toBe(beforeCount + 1);
+});
+
+it('does not create a revision after a failed operation', () => {
+  const store = new DesignStore(createValidState());
+
+  const graph = store.getRevisionGraph();
+  const beforeCount = graph.getRevisionCount();
+
+  expect(() =>
+    store.removeComponent('does-not-exist'),
+  ).toThrow();
+
+  expect(graph.getRevisionCount()).toBe(beforeCount);
+});
+
+it('does not allow retrieved revision history to mutate stored revisions', () => {
+  const store = new DesignStore(createValidState());
+
+  const graph = store.getRevisionGraph();
+  const originalRevisionId = store.getState().revisionId;
+
+  const revision = graph.getRevision(originalRevisionId);
+
+  if (!revision) {
+    throw new Error('Expected initial revision to exist.');
+  }
+
+  revision.snapshot.components[0].id = 'tampered-hook';
+
+  const storedRevision = graph.getRevision(originalRevisionId);
+
+  expect(storedRevision?.snapshot.components[0].id).toBe('hook-1');
+});
+  
+   ;});
