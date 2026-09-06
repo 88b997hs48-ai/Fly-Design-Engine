@@ -5,11 +5,12 @@
   "description": "An AI-assisted engine for designing, constructing, explaining, visualizing, and modifying flies.",
   "type": "module",
   "scripts": {
-    "build": "tsc --noEmit",
-    "test": "vitest run"
-  },
+  "build": "tsc --noEmit",
+  "test": "vitest run",
+  "example": "tsx src/example.ts"
+}
   "devDependencies": {
-    "typescript": "^5.9.2",
-    "vitest": "^3.2.4"
-  }
+  "typescript": "^5.9.2",
+  "vitest": "^3.2.4",
+  "tsx": "^4.20.5"
 }
