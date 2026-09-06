@@ -7,7 +7,7 @@
   "scripts": {
   "build": "tsc --noEmit",
   "test": "vitest run",
-  "example": "tsx src/example.ts"
+  "example": "tsx src/examples/runMechanicalTestStreamer.ts"
 },
   "devDependencies": {
   "typescript": "^5.9.2",
