@@ -28,7 +28,7 @@ jobs:
         run: npm run build
 
       - name: Run example
-        run: npx tsx src/example.ts
+        run: npm run example
 
       - name: Run tests
         run: npm test
