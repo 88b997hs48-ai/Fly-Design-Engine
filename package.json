@@ -8,7 +8,7 @@
   "build": "tsc --noEmit",
   "test": "vitest run",
   "example": "tsx src/example.ts"
-}
+},
   "devDependencies": {
   "typescript": "^5.9.2",
   "vitest": "^3.2.4",
