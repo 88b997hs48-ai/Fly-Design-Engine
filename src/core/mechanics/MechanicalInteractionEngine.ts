@@ -13,11 +13,12 @@ export class MechanicalInteractionEngine {
     const components = design.components ?? [];
 
     const hasLeadFreeWireBelowShank = components.some((component) => {
-      const materialName = component.material?.name?.toLowerCase() ?? "";
+      const materialName = component.materialId?.toLowerCase() ?? "";
       const position = component.position?.toLowerCase() ?? "";
 
       return (
-        materialName.includes("lead-free wire") &&
+        materialName.includes("lead") &&
+materialName.includes("wire") &&
         (position.includes("below") ||
           position.includes("underside") ||
           position.includes("bottom"))
@@ -25,11 +26,12 @@ export class MechanicalInteractionEngine {
     });
 
     const hasDeerHairHead = components.some((component) => {
-      const materialName = component.material?.name?.toLowerCase() ?? "";
+      const materialName = component.materialId?.toLowerCase() ?? "";
       const position = component.position?.toLowerCase() ?? "";
 
       return (
-        materialName.includes("deer hair") &&
+        materialName.includes("deer") &&
+materialName.includes("hair") &&
         (position.includes("head") || position.includes("front"))
       );
     });
