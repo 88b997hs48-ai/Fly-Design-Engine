@@ -13,7 +13,7 @@ import {
  * The engine can later replace these with better empirical data
  * without changing the FlyDesign domain model.
  */
-export type MechanicalContribution = -2 | -1 | 0 | 1 | 2;
+export type MechanicalContribution = number;
 
 export interface MaterialMechanicalEffect {
   materialId: string;
@@ -223,19 +223,6 @@ function applyPlacementRules(
   }
 }
 
-/**
- * Prevent an individual material from producing runaway values.
- */
-function clampContribution(
-  value: number
-): MechanicalContribution {
-  if (value <= -2) return -2;
-  if (value === -1) return -1;
-  if (value === 0) return 0;
-  if (value === 1) return 1;
-
-  return 2;
-}
 
 /**
  * Evaluate one material.
@@ -249,20 +236,9 @@ export function evaluateMaterialMechanics(
     applyFunction(effect, fn, material);
   }
 
-  applyPlacementRules(effect, material);
+applyPlacementRules(effect, material);
 
-  effect.movement = clampContribution(effect.movement);
-  effect.sinkTendency = clampContribution(effect.sinkTendency);
-  effect.buoyancy = clampContribution(effect.buoyancy);
-  effect.profile = clampContribution(effect.profile);
-  effect.waterDisplacement =
-    clampContribution(effect.waterDisplacement);
-  effect.stability = clampContribution(effect.stability);
-  effect.flash = clampContribution(effect.flash);
-  effect.translucency = clampContribution(effect.translucency);
-  effect.durability = clampContribution(effect.durability);
-
-  return effect;
+return effect;
 }
 
 /**
