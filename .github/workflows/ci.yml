@@ -20,5 +20,7 @@ jobs:
         run: npm install
       - name: TypeScript build
         run: npm run build
+        - name: Run example
+         run: npx tsx src/example.ts
       - name: Run tests
         run: npm test
