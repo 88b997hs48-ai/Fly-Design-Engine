@@ -2,7 +2,7 @@ import { testStreamer } from "./testStreamer";
 import {
   adaptFlyDesignToMechanicalInput
 } from "../core/mechanics/FlyDesignMechanicalAdapter";
-
+import { MechanicalInteractionEngine } from "../core/mechanics/MechanicalInteractionEngine";
 /**
  * Run our first real FlyDesign through the mechanical adapter.
  *
@@ -15,9 +15,23 @@ import {
  * Normalized Mechanical Profile
  */
 
+
 const mechanicalProfile =
   adaptFlyDesignToMechanicalInput(testStreamer);
 
+const interactionEngine = new MechanicalInteractionEngine();
+const interactionEffects = interactionEngine.evaluate(testStreamer);
+
+const interactionStability = interactionEffects.reduce(
+  (total, interaction) => total + (interaction.effects.stability ?? 0),
+  0
+);
+
+const combinedStability =
+  mechanicalProfile.stability + interactionStability;
+
+console.log("========================================");
+console.log("FLY DESIGN ENGINE — MECHANICAL PROFILE");
 console.log("\n========================================");
 console.log("FLY DESIGN ENGINE — MECHANICAL PROFILE");
 console.log("========================================\n");
