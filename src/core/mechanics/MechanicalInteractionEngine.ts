@@ -1,4 +1,5 @@
-import { FlyDesign, MechanicsProfile } from "../../types";
+import { FlyDesign } from "../../domain/flyDesign";
+import { MechanicsProfile } from "../../types";
 
 export interface InteractionEffect {
   interaction: string;
@@ -10,29 +11,30 @@ export class MechanicalInteractionEngine {
   evaluate(design: FlyDesign): InteractionEffect[] {
     const interactions: InteractionEffect[] = [];
 
-    const components = design.components ?? [];
+    const materials = design.materials ?? [];
 
-    const hasLeadFreeWireBelowShank = components.some((component) => {
-      const materialName = component.materialId?.toLowerCase() ?? "";
-      const position = component.position?.toLowerCase() ?? "";
+    const hasLeadFreeWireBelowShank = materials.some((material) => {
+      const materialName = material.name.toLowerCase();
+      const materialId = material.id.toLowerCase();
 
       return (
-        materialName.includes("lead") &&
-materialName.includes("wire") &&
-        (position.includes("below") ||
-          position.includes("underside") ||
-          position.includes("bottom"))
-      );
+        (materialName.includes("lead") &&
+          materialName.includes("wire")) ||
+        (materialId.includes("lead") &&
+          materialId.includes("wire"))
+      ) && material.placement === "weight";
     });
 
-    const hasDeerHairHead = components.some((component) => {
-      const materialName = component.materialId?.toLowerCase() ?? "";
-      const position = component.position?.toLowerCase() ?? "";
+    const hasDeerHairHead = materials.some((material) => {
+      const materialName = material.name.toLowerCase();
+      const materialId = material.id.toLowerCase();
 
       return (
-        materialName.includes("deer") &&
-materialName.includes("hair") &&
-        (position.includes("head") || position.includes("front"))
+        ((materialName.includes("deer") &&
+          materialName.includes("hair")) ||
+          (materialId.includes("deer") &&
+            materialId.includes("hair"))) &&
+        material.placement === "head"
       );
     });
 
@@ -43,9 +45,9 @@ materialName.includes("hair") &&
           stability: 2,
         },
         reasons: [
-          "Weight positioned below the hook shank lowers the fly's center of mass.",
-          "Buoyant deer hair concentrated near the head places buoyancy above and forward of the ballast.",
-          "The separation between ballast and buoyancy increases self-righting and keel stability.",
+          "Weight concentrated low in the fly increases keel influence.",
+          "Buoyant deer hair concentrated at the head opposes the low ballast.",
+          "The separation between ballast and buoyancy increases self-righting stability.",
         ],
       });
     }
