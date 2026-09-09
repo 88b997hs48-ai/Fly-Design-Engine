@@ -1,102 +1,64 @@
-import { testStreamer } from "./testStreamer";
+import { testStreamer } from './testStreamer';
 import {
-  adaptFlyDesignToMechanicalInput
-} from "../core/mechanics/FlyDesignMechanicalAdapter";
-import { MechanicalInteractionEngine } from "../core/mechanics/MechanicalInteractionEngine";
-/**
- * Run our first real FlyDesign through the mechanical adapter.
- *
- * This is intentionally simple:
- *
- * FlyDesign
- *    ↓
- * Mechanical Adapter
- *    ↓
- * Normalized Mechanical Profile
- */
+  buildFlyMechanicalProfile,
+} from '../core/mechanics/FlyMechanicalProfileEngine';
 
 
-const mechanicalProfile =
-  adaptFlyDesignToMechanicalInput(testStreamer);
+const result =
+  buildFlyMechanicalProfile(testStreamer);
 
-const interactionEngine = new MechanicalInteractionEngine();
-const interactionEffects = interactionEngine.evaluate(testStreamer);
+const {
+  profile,
+  interactions,
+} = result;
 
-const interactionStability = interactionEffects.reduce(
-  (total, interaction) => total + (interaction.effects.stability ?? 0),
-  0
-);
 
-const combinedStability =
-  mechanicalProfile.stability + interactionStability;
+console.log('========================================');
+console.log('FLY DESIGN ENGINE — MECHANICAL PROFILE');
+console.log('========================================\n');
 
-console.log("========================================");
-console.log("FLY DESIGN ENGINE — MECHANICAL PROFILE");
-console.log("\n========================================");
-console.log("FLY DESIGN ENGINE — MECHANICAL PROFILE");
-console.log("========================================\n");
+console.log(`Fly: ${profile.flyName}`);
+console.log(`ID:  ${profile.flyId}`);
 
-console.log(`Fly: ${mechanicalProfile.flyName}`);
-console.log(`ID:  ${mechanicalProfile.flyId}`);
+console.log('\n--- Combined Mechanical Profile ---');
 
-console.log("\n--- Combined Mechanical Profile ---");
-
+console.log(`Movement:             ${profile.movement}`);
+console.log(`Sink tendency:        ${profile.sinkTendency}`);
+console.log(`Buoyancy:             ${profile.buoyancy}`);
+console.log(`Profile:              ${profile.profile}`);
 console.log(
-  `Movement:             ${mechanicalProfile.movement}`
+  `Water displacement:   ${profile.waterDisplacement}`,
 );
+console.log(`Stability:            ${profile.stability}`);
+console.log(`Flash:                ${profile.flash}`);
+console.log(`Translucency:         ${profile.translucency}`);
+console.log(`Durability:           ${profile.durability}`);
 
-console.log(
-  `Sink tendency:        ${mechanicalProfile.sinkTendency}`
-);
 
-console.log(
-  `Buoyancy:             ${mechanicalProfile.buoyancy}`
-);
+console.log('\n--- Material-Level Effects ---');
 
-console.log(
-  `Profile:              ${mechanicalProfile.profile}`
-);
-
-console.log(
-  `Water displacement:   ${mechanicalProfile.waterDisplacement}`
-);
-
-console.log(
-  `Stability:            ${mechanicalProfile.stability}`
-);
-
-console.log(
-  `Flash:                ${mechanicalProfile.flash}`
-);
-
-console.log(
-  `Translucency:         ${mechanicalProfile.translucency}`
-);
-
-console.log(
-  `Durability:           ${mechanicalProfile.durability}`
-);
-
-console.log("\n--- Material-Level Effects ---");
-
-for (const effect of mechanicalProfile.materialEffects) {
+for (const effect of profile.materialEffects) {
   console.log(`\n${effect.materialName}`);
-  console.log("--------------------------------");
+  console.log('--------------------------------');
 
   console.log(`Movement:            ${effect.movement}`);
-  console.log(`Sink tendency:       ${effect.sinkTendency}`);
+  console.log(
+    `Sink tendency:       ${effect.sinkTendency}`,
+  );
   console.log(`Buoyancy:            ${effect.buoyancy}`);
   console.log(`Profile:             ${effect.profile}`);
   console.log(
-    `Water displacement:  ${effect.waterDisplacement}`
+    `Water displacement:  ${effect.waterDisplacement}`,
   );
   console.log(`Stability:           ${effect.stability}`);
   console.log(`Flash:               ${effect.flash}`);
-  console.log(`Translucency:        ${effect.translucency}`);
+  console.log(
+    `Translucency:        ${effect.translucency}`,
+  );
   console.log(`Durability:          ${effect.durability}`);
 
   if (effect.reasons.length > 0) {
-    console.log("\nReasons:");
+    console.log('\nReasons:');
 
     for (const reason of effect.reasons) {
       console.log(`- ${reason}`);
@@ -104,4 +66,21 @@ for (const effect of mechanicalProfile.materialEffects) {
   }
 }
 
-console.log("\n========================================\n");
+
+console.log('\n--- Mechanical Interactions ---');
+
+if (interactions.length === 0) {
+  console.log('No material interactions detected.');
+}
+
+for (const interaction of interactions) {
+  console.log(`\n${interaction.interaction}`);
+  console.log('--------------------------------');
+
+  for (const reason of interaction.reasons) {
+    console.log(`- ${reason}`);
+  }
+}
+
+
+console.log('\n========================================\n');
