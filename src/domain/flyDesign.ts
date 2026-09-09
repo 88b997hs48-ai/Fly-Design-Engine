@@ -102,6 +102,7 @@ export interface FlyMaterial {
    * When omitted, the proportion engine derives a repeatable range from
    * the material placement and uses `position` as its anchor.
    */
+    position?: number;
   positionRange?: {
     start: number;
     end: number;
