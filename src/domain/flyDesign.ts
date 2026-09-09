@@ -95,7 +95,17 @@ export interface FlyMaterial {
    * This gives the mechanics engine a simple positional value
    * without requiring a full geometric model yet.
    */
-  position?: number;
+    /**
+   * Optional occupied range from rear (0) to front (1).
+   *
+   * Use this when a material covers an area instead of a single point.
+   * When omitted, the proportion engine derives a repeatable range from
+   * the material placement and uses `position` as its anchor.
+   */
+  positionRange?: {
+    start: number;
+    end: number;
+  };
 
   /**
    * Optional notes that are useful to the designer but should not
