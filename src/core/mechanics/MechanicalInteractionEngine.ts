@@ -22,8 +22,10 @@ export class MechanicalInteractionEngine {
           materialName.includes("wire")) ||
         (materialId.includes("lead") &&
           materialId.includes("wire"))
-      ) && material.placement === "weight";
-    });
+            ) && (
+        material.placement === "weight" ||
+        material.placement === "underbody"
+      );
 
     const hasDeerHairHead = materials.some((material) => {
       const materialName = material.name.toLowerCase();
