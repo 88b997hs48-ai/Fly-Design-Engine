@@ -26,7 +26,7 @@ export class MechanicalInteractionEngine {
         material.placement === "weight" ||
         material.placement === "underbody"
       );
-
+   });
     const hasDeerHairHead = materials.some((material) => {
       const materialName = material.name.toLowerCase();
       const materialId = material.id.toLowerCase();
